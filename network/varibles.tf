@@ -18,11 +18,11 @@ variable "domain_name_servers" {
   description = ""
 }
 
-variable "availablity_zones" {
+variable "availabilty_zones" {
   description = ""
 }
 
-variable "priate_subnets" {
+variable "private_subnets" {
   description = ""
 }
 
