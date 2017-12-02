@@ -1,3 +1,9 @@
+provider "aws" { }
+
+terraform {
+  backend "s3" { }
+}
+
 resource "aws_vpc" "this" {
   cidr_block = "${var.cidr}"
   enable_dns_support = true
