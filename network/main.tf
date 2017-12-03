@@ -1,4 +1,7 @@
-provider "aws" { }
+provider "aws" {
+  version = "~> 1.5"
+  region = "${var.region}"
+}
 
 terraform {
   backend "s3" { }
@@ -10,16 +13,16 @@ resource "aws_vpc" "this" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "${var.identifier}-${var.deploy}"
+    Name = "${var.identifier}-${var.environment}"
   }
 }
 
 resource "aws_vpc_dhcp_options" "this" {
-  domain_name = "${var.identifier}-${var.deploy}.${var.region}.aws."
+  domain_name = "${var.identifier}-${var.environment}.${var.region}.aws."
   domain_name_servers = "${var.domain_name_servers}"
 
   tags {
-    Name = "${var.identifier}-${var.deploy}"
+    Name = "${var.identifier}-${var.environment}"
   }
 }
 
@@ -32,11 +35,11 @@ resource "aws_subnet" "public" {
     count = "${length(var.public_subnets)}"
 
     vpc_id = "${aws_vpc.this.id}"
-    cider_block = "${var.public_subnets[count.index]}"
-    availability_zone = "${element(var.availability_zones, count.index)}"
+    cidr_block = "${var.public_subnets[count.index]}"
+    availability_zone = "${var.region}${element(var.availability_zones, count.index)}"
 
     tags {
-      Name = "${var.identifier}-${var.deploy}-public"
+      Name = "${var.identifier}-${var.environment}-public"
     }
 }
 
@@ -44,11 +47,11 @@ resource "aws_subnet" "private" {
     count = "${length(var.private_subnets)}"
 
     vpc_id = "${aws_vpc.this.id}"
-    cider_block = "${var.private_subnets[count.index]}"
-    availability_zone = "${element(var.availability_zones, count.index)}"
+    cidr_block = "${var.private_subnets[count.index]}"
+    availability_zone = "${var.region}${element(var.availability_zones, count.index)}"
 
     tags {
-      Name = "${var.identifier}-${var.deploy}-private"
+      Name = "${var.identifier}-${var.environment}-private"
     }
 }
 
@@ -56,7 +59,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = "${aws_vpc.this.id}"
 
   tags {
-    Name = "${var.identifier}-${var.deploy}"
+    Name = "${var.identifier}-${var.environment}"
   }
 }
 
@@ -68,7 +71,7 @@ resource "aws_nat_gateway" "this" {
   allocation_id = "${aws_eip.nat.id}"
   subnet_id = "${aws_subnet.public.0.id}"
 
-#  depends_on = [ "aws_internet_gateway.this" ]
+  depends_on = [ "aws_internet_gateway.this" ]
 }
 
 resource "aws_route_table" "public" {
@@ -82,7 +85,7 @@ resource "aws_route_table" "public" {
   }
 
   tags {
-    Name = "${var.identifier}-${var.deploy}-public"
+    Name = "${var.identifier}-${var.environment}-public"
   }
 }
 
@@ -97,24 +100,28 @@ resource "aws_route_table" "private" {
   }
 
   tags {
-    Name = "${var.identifier}-${var.deploy}-private"
+    Name = "${var.identifier}-${var.environment}-private"
   }
 }
 
 resource "aws_route_table_association" "public" {
+  depends_on = [ "aws_route_table.public" ]
+
   subnet_id = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
-  count = "${length(split(",", var.public_subnets))}"
+  count = "${length(var.public_subnets)}"
 }
 
 resource "aws_route_table_association" "private" {
+  depends_on = [ "aws_route_table.private" ]
+
   subnet_id = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${aws_route_table.private.id}"
-  count = "${length(split(",", var.private_subnets))}"
+  count = "${length(var.private_subnets)}"
 }
 
 resource "aws_route53_zone" "private" {
-  name = "${var.identifier}-${var.deploy}.${var.region}.aws."
+  name = "${var.identifier}-${var.environment}.${var.region}.aws."
 
   vpc_id = "${aws_vpc.this.id}"
 }
@@ -122,7 +129,7 @@ resource "aws_route53_zone" "private" {
 resource "aws_route53_record" "private" {
   zone_id = "${aws_route53_zone.private.id}"
 
-  name = "${var.identifier}-${var.deploy}.${var.region}.aws."
+  name = "${var.identifier}-${var.environment}.${var.region}.aws."
   type = "NS"
   ttl = "30"
 

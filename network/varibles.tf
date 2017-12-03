@@ -1,31 +1,36 @@
-variable "region" {
-  description = ""
-}
-
 variable "identifier" {
   description = ""
 }
 
-variable "deploy" {
+variable "environment" {
+  description = ""
+}
+
+variable "region" {
   description = ""
 }
 
 variable "cidr" {
   description = ""
+  default = ""
 }
 
 variable "domain_name_servers" {
   description = ""
+  default = [ ]
 }
 
-variable "availabilty_zones" {
+variable "availability_zones" {
   description = ""
+  default = [ ]
 }
 
 variable "private_subnets" {
   description = ""
+  default = [ ]
 }
 
 variable "public_subnets" {
   description = ""
+  default = [ ]
 }
