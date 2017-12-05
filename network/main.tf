@@ -40,6 +40,7 @@ resource "aws_subnet" "public" {
 
     tags {
       Name = "${var.identifier}-${var.environment}-public"
+      Tier = "public"
     }
 }
 
@@ -52,6 +53,7 @@ resource "aws_subnet" "private" {
 
     tags {
       Name = "${var.identifier}-${var.environment}-private"
+      Tier = "private"
     }
 }
 
