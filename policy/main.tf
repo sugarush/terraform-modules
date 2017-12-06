@@ -37,7 +37,8 @@ resource "aws_iam_policy" "this" {
     {
       "Action": [
         "ec2:DescribeInstances",
-        "ec2:DescribeTags"
+        "ec2:DescribeTags",
+        "ec2:CreateTags"
       ],
       "Effect": "Allow",
       "Resource": "*"
