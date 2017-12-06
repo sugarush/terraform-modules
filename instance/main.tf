@@ -78,5 +78,5 @@ resource "aws_eip" "this" {
   instance = "${element(aws_instance.this.*.id, count.index)}"
   vpc = true
 
-  count = "${var.nodes}"
+  count = "${var.public ? "${var.nodes}" : "0"}"
 }
