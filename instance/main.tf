@@ -65,6 +65,10 @@ resource "aws_instance" "this" {
 
   count = "${var.nodes}"
 
+  lifecycle {
+    ignore_changes = [ "tags" ]
+  }
+
   tags {
     Managed = "terraform-${var.environment}"
   }
