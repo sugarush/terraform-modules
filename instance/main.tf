@@ -66,7 +66,6 @@ resource "aws_instance" "this" {
   count = "${var.nodes}"
 
   tags {
-    Name = "${var.identifier}-${var.environment}-${var.role}"
     Managed = "terraform-${var.environment}"
   }
 }
