@@ -35,6 +35,11 @@ data "aws_iam_instance_profile" "selected" {
   name = "${var.identifier}-${var.environment}-${var.role}"
 }
 
+data "aws_route53_zone" "selected" {
+  name = "${var.identifier}-${var.environment}.${var.region}.aws."
+  private_zone = true
+}
+
 data "template_file" "user_data" {
   template = "${file("${path.module}/scripts/userdata.sh")}"
 
@@ -70,7 +75,8 @@ resource "aws_instance" "this" {
   }
 
   tags {
-    Managed = "terraform-${var.environment}"
+    Cluster = "${var.environment}-${var.role}"
+    Environment = "${var.environment}"
   }
 }
 
@@ -79,4 +85,16 @@ resource "aws_eip" "this" {
   vpc = true
 
   count = "${var.public ? "${var.nodes}" : "0"}"
+}
+
+resource "aws_route53_record" "this" {
+  zone_id = "${data.aws_route53_zone.selected.id}"
+
+  name = "${var.role}-${count.index + 1}"
+  type = "A"
+  ttl = "30"
+
+  records = [ "${element(aws_instance.this.*.private_ip, count.index)}" ]
+
+  count = "${var.nodes}"
 }
