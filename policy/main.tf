@@ -7,56 +7,60 @@ terraform {
   backend "s3" { }
 }
 
+data "aws_iam_policy_document" "role" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+
+    principals = {
+      type = "Service"
+      identifiers = [ "ec2.amazonaws.com" ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "policy" {
+  statement {
+    actions = [ "${var.actions}" ]
+    resources = [ "${var.resources}" ]
+  }
+
+  statement {
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeTags",
+      "ec2:CreateTags"
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject"
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.identifier}-${var.environment}-archlinux-repository",
+      "arn:aws:s3:::${var.identifier}-${var.environment}-archlinux-repository/*"
+    ]
+  }
+}
+
 resource "aws_iam_role" "this" {
   name = "${var.identifier}-${var.environment}-${var.role}"
   path = "/instance/"
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
-}
-EOF
+  assume_role_policy = "${data.aws_iam_policy_document.role.json}"
 }
 
 resource "aws_iam_policy" "this" {
   name = "${var.identifier}-${var.environment}-${var.role}"
   path = "/instance/"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "ec2:DescribeInstances",
-        "ec2:DescribeTags",
-        "ec2:CreateTags"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
-    },
-    {
-      "Action": [
-        "s3:ListBucket",
-        "s3:GetObject"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "arn:aws:s3:::${var.identifier}-${var.environment}-archlinux-repository",
-        "arn:aws:s3:::${var.identifier}-${var.environment}-archlinux-repository/*"
-      ]
-    }
-  ]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.policy.json}"
 }
 
 resource "aws_iam_policy_attachment" "this" {
