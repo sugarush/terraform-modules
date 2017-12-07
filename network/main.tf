@@ -126,6 +126,10 @@ resource "aws_route53_zone" "private" {
   name = "${var.identifier}-${var.environment}.${var.region}.aws."
 
   vpc_id = "${aws_vpc.this.id}"
+
+  tags {
+    Name = "${var.identifier}-${var.environment}"
+  }
 }
 
 resource "aws_route53_record" "private" {
