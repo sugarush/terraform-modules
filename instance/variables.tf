@@ -34,6 +34,11 @@ variable "nodes" {
   description = ""
 }
 
+variable "etcd" {
+  description = ""
+  default = false
+}
+
 variable "public" {
   description = ""
   default = false

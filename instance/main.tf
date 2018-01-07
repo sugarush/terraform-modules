@@ -98,3 +98,39 @@ resource "aws_route53_record" "this" {
 
   count = "${var.nodes}"
 }
+
+resource "aws_route53_record" "etcd" {
+  zone_id = "${data.aws_route53_zone.selected.id}"
+
+  name = "etcd-${count.index + 1}"
+  type = "A"
+  ttl = "30"
+
+  records = [ "${element(aws_instance.this.*.private_ip, count.index)}" ]
+
+  count = "${var.etcd ? var.nodes : 0}"
+}
+
+resource "aws_route53_record" "etcd-server" {
+  zone_id = "${data.aws_route53_zone.selected.id}"
+
+  name = "_etcd-server._tcp"
+  type = "SRV"
+  ttl = "30"
+
+  records = [ "${formatlist("0 0 2380 %s", aws_route53_record.etcd.*.fqdn)}" ]
+
+  count = "${var.etcd ? 1 : 0}"
+}
+
+resource "aws_route53_record" "etcd-client" {
+  zone_id = "${data.aws_route53_zone.selected.id}"
+
+  name = "_etcd-client._tcp"
+  type = "SRV"
+  ttl = "30"
+
+  records = [ "${formatlist("0 0 2379 %s", aws_route53_record.etcd.*.fqdn)}" ]
+
+  count = "${var.etcd ? 1 : 0}"
+}
