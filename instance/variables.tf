@@ -43,3 +43,8 @@ variable "public" {
   description = ""
   default = false
 }
+
+variable "public_zone" {
+  description = ""
+  default = ""
+}

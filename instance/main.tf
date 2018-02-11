@@ -40,6 +40,12 @@ data "aws_route53_zone" "selected" {
   private_zone = true
 }
 
+data "aws_route53_zone" "public" {
+  name = "${var.public_zone}"
+
+  count = "${var.public_zone != "" ? 1 : 0}"
+}
+
 data "template_file" "user_data" {
   template = "${file("${path.module}/scripts/userdata.sh")}"
 
@@ -97,6 +103,18 @@ resource "aws_route53_record" "this" {
   records = [ "${element(aws_instance.this.*.private_ip, count.index)}" ]
 
   count = "${var.nodes}"
+}
+
+resource "aws_route53_record" "public" {
+  zone_id = "${data.aws_route53_zone.public_zone.id}"
+
+  name = "${var.role}-${var.environment}-${count.index + 1}"
+  type = "A"
+  ttl = "30"
+
+  records = [ "${element(aws_eip.this.*.public_ip, count.index)}" ]
+
+  count = "${var.public_zone != "" ? var.nodes : 0}"
 }
 
 resource "aws_route53_record" "etcd" {
