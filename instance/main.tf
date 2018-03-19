@@ -138,6 +138,8 @@ resource "aws_route53_record" "etcd-server" {
 
   records = [ "${formatlist("0 0 2380 %s", aws_route53_record.etcd.*.fqdn)}" ]
 
+  depends_on = [ "aws_route53_record.etcd" ]
+
   count = "${var.etcd ? 1 : 0}"
 }
 
@@ -149,6 +151,8 @@ resource "aws_route53_record" "etcd-client" {
   ttl = "30"
 
   records = [ "${formatlist("0 0 2379 %s", aws_route53_record.etcd.*.fqdn)}" ]
+
+  depends_on = [ "aws_route53_record.etcd" ]
 
   count = "${var.etcd ? 1 : 0}"
 }
