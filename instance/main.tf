@@ -106,7 +106,7 @@ resource "aws_route53_record" "this" {
 }
 
 resource "aws_route53_record" "public" {
-  zone_id = "${data.aws_route53_zone.public_zone.id}"
+  zone_id = "${data.aws_route53_zone.public.id}"
 
   name = "${var.role}-${var.environment}-${count.index + 1}"
   type = "A"
