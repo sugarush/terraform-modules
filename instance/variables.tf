@@ -26,6 +26,10 @@ variable "role" {
   description = ""
 }
 
+variable "iam_profile" {
+  description = ""
+}
+
 variable "type" {
   description = ""
 }
@@ -47,4 +51,9 @@ variable "public" {
 variable "public_zone" {
   description = ""
   default = ""
+}
+
+variable "security" {
+  description = ""
+  default = [ ]
 }

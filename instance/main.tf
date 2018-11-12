@@ -26,13 +26,15 @@ data "aws_subnet_ids" "selected" {
 }
 
 data "aws_security_group" "selected" {
+  count = "${length(var.security)}"
+
   tags {
-    Name = "${var.identifier}-${var.environment}-${var.role}"
+    Name = "${var.identifier}-${var.environment}-${element(var.security, count.index)}"
   }
 }
 
 data "aws_iam_instance_profile" "selected" {
-  name = "${var.identifier}-${var.environment}-${var.role}"
+  name = "${var.identifier}-${var.environment}-${var.iam_profile}"
 }
 
 data "aws_route53_zone" "selected" {
@@ -68,7 +70,7 @@ resource "aws_instance" "this" {
   key_name = "${var.key}"
 
   subnet_id = "${element(data.aws_subnet_ids.selected.ids, count.index)}"
-  vpc_security_group_ids = [ "${data.aws_security_group.selected.id}" ]
+  vpc_security_group_ids = [ "${data.aws_security_group.selected.*.id}" ]
 
   iam_instance_profile = "${data.aws_iam_instance_profile.selected.name}"
 

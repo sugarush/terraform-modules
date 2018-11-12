@@ -10,6 +10,10 @@ variable "region" {
   description = ""
 }
 
-variable "role" {
+variable "account" {
   description = ""
 }
+
+#variable "role" {
+#  description = ""
+#}
