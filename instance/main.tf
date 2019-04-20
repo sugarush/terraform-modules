@@ -82,6 +82,10 @@ resource "aws_instance" "this" {
     ignore_changes = [ "tags" ]
   }
 
+  root_block_device {
+    volume_size = "${var.volume_size}"
+  }
+
   tags {
     Cluster = "${var.environment}-${var.role}"
     Environment = "${var.environment}"

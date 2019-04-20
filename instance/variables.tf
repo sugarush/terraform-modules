@@ -57,3 +57,8 @@ variable "security" {
   description = ""
   default = [ ]
 }
+
+variable "volume_size" {
+  description = ""
+  default = "10"
+}
