@@ -7,7 +7,7 @@ rm /etc/machine-id
 systemd-machine-id-setup
 
 UUID=$(cat /etc/machine-id)
-ID=$${UUID:0:7}
+ID=$${UUID:0:13}
 
 cat <<EOF >> /etc/environment
 UUID=$${UUID}
@@ -50,7 +50,7 @@ ExecStartPre=/usr/bin/git -C /root/ansible fetch
 ExecStartPre=/usr/bin/git -C /root/ansible checkout \$${ENVIRONMENT}
 ExecStartPre=/usr/bin/git -C /root/ansible pull
 
-ExecStart=/usr/bin/ansible-playbook -i /root/ansible/inventory /root/ansible/archlinux/bootstrap.yml -e "ansible_python_interpreter=/usr/bin/python2"
+ExecStart=/usr/bin/ansible-playbook -i /root/ansible/inventory /root/ansible/archlinux/bootstrap.yml
 EOF
 
 chmod 655 /etc/environment

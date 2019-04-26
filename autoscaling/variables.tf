@@ -10,14 +10,6 @@ variable "region" {
   description = ""
 }
 
-variable "role" {
-  description = ""
-}
-
-variable "name" {
-  description = ""
-}
-
 variable "ansible" {
   description = ""
 }
@@ -30,12 +22,20 @@ variable "ami" {
   description = ""
 }
 
+variable "role" {
+  description = ""
+}
+
+variable "iam_profile" {
+  description = ""
+}
+
 variable "type" {
   description = ""
 }
 
 variable "public" {
-  descritpion = ""
+  description = ""
   default =  false
 }
 
@@ -72,3 +72,4 @@ variable "metric" {
 variable "metric_value" {
   description = ""
   default = 50.0
+}
